@@ -1,0 +1,8 @@
+/target/
+/.lein*
+/.repl*
+/.nrepl*
+/*.log
+/pom.xml
+/.idea
+/*.iml
