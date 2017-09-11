@@ -2,7 +2,9 @@
 
 Like https://store.moma.org/home/clocks/clock-clock-24/119937-119937.html, but is cljs.
 
-More videos at http://www.humanssince1982.com.
+More videos at http://www.humanssince1982.com
+
+Also, http://i.imgur.com/DENvcWo.gifv
 
 ## Setup
 
