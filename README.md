@@ -1,6 +1,8 @@
 # moma-clock
 
-Like http://www.humanssince1982.com, but is cljs.
+Like https://store.moma.org/home/clocks/clock-clock-24/119937-119937.html, but is cljs.
+
+More videos at http://www.humanssince1982.com.
 
 ## Setup
 
