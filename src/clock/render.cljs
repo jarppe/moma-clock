@@ -29,20 +29,18 @@
     (doto ctx
       (-> .-strokeStyle (set! pointer-style))
       (-> .beginPath))
-    (doseq [x (range 8)
-            y (range 3)]
-      (let [[a1 a2] (nth state (+ (* y 3) x))
-            a1 (- a1 PIp2)
-            a2 (- a2 PIp2)]
-        (doto ctx
-          (.save)
-          (.translate (+ off-x rp2 (* x r))
-                      (+ off-y rp2 (* y r)))
-          (.rotate a1)
-          (.moveTo 0 0)
-          (.lineTo clock-size 0)
-          (.rotate (+ (* -1.0 a1) a2))
-          (.moveTo 0 0)
-          (.lineTo clock-size 0)
-          (.restore)))))
+    (doseq [y (range 3)
+            x (range 8)
+            :let [[a1 a2] (nth state (+ (* y 8) x))]]
+      (doto ctx
+        (.save)
+        (.translate (+ off-x rp2 (* x r))
+                    (+ off-y rp2 (* y r)))
+        (.rotate a1)
+        (.moveTo 0 0)
+        (.lineTo clock-size 0)
+        (.rotate (+ (* -1.0 a1) a2))
+        (.moveTo 0 0)
+        (.lineTo clock-size 0)
+        (.restore))))
   (-> ctx .stroke))
