@@ -1,6 +1,6 @@
 (defproject moma-clock "0.1.0-SNAPSHOT"
   :description "Art project inspired by https://store.moma.org/home/clocks/clock-clock-24/119937-119937.html"
-  :dependencies [[org.clojure/clojure "1.9.0-alpha20"]
+  :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.9.908"]]
 
   :plugins [[lein-figwheel "0.5.13"]
@@ -20,6 +20,7 @@
                         :source-paths ["src"]
                         :figwheel {:websocket-host :js-client-host}
                         :compiler {:main clock.main
+                                   :optimizations :none
                                    :asset-path "/js/out"
                                    :output-to "target/dev/resources/public/js/main.js"
                                    :output-dir "target/dev/resources/public/js/out"
