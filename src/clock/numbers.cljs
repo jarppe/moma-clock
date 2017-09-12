@@ -1,8 +1,9 @@
 (ns clock.numbers)
 
-(def PI Math/PI)
-(def PIx2 (* Math/PI 2.0))
-(def PIp2 (/ Math/PI 2.0))
+(def ^:const PI Math/PI)
+(def ^:const PIx2 (* PI 2.0))
+(def ^:const PIp2 (/ PI 2.0))
+
 
 (defn ->a [p]
   (-> p
