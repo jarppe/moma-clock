@@ -35,6 +35,6 @@
     (reset-ctx!)
     ((fn animation [ts]
        (r/render @ctx ts)
-       (js/window.requestAnimationFrame animation)))))
+       (js/window.requestAnimationFrame animation)) 0)))
 
 (init!)
