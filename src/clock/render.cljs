@@ -2,8 +2,8 @@
   (:require [clock.state :as s]
             [clock.numbers :as n]))
 
-(def ^:const circle-style "#f2f2f2")
-(def ^:const pointer-style "#404040")
+(def ^:const circle-style "#333")
+(def ^:const pointer-style "#aaa")
 
 (defn clear [{:keys [ctx width height] :as state}]
   (.clearRect ctx 0 0 width height)
