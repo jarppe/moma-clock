@@ -22,6 +22,14 @@
   (let [canvas (js/document.getElementById "app")
         width (.-clientWidth canvas)
         height (.-clientHeight canvas)]
+    (when-let [requestFullscreen (->> ["requestFullscreen"
+                                       "webkitRequestFullscreen"
+                                       "webkitRequestFullScreen"
+                                       "mozRequestFullScreen"
+                                       "msRequestFullscreen"]
+                                      (some (fn [fname]
+                                              (aget canvas fname))))]
+      (.call requestFullscreen canvas))
     (doto canvas
       (-> .-width (set! width))
       (-> .-height (set! height)))
