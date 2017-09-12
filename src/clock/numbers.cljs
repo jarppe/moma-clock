@@ -4,11 +4,8 @@
 (def ^:const PIx2 (* PI 2.0))
 (def ^:const PIp2 (/ PI 2.0))
 
-
 (defn ->a [p]
-  (-> p
-      (* (/ PIx2 8))
-      (- PIp2)))
+  (* p (/ PIx2 8)))
 
 (def numbers (->> [; 0
                    [2 4] [6 4]
@@ -50,15 +47,14 @@
                    [2 4] [6 4]
                    [0 2] [0 4]
                    [2 2] [6 0]]
-                  (map (fn [[a1 a2]]
-                         [(->a a1) (->a a2)]))
+                  (mapcat identity)
+                  (map ->a)
+                  (partition 12)
                   (into [])))
 
-(defn pointers [now x y]
-  (let [n (nth now (Math/floor (/ x 2.0)))
-        y' (mod y 3)
-        x' (mod x 2)]
-    (nth numbers (+ (* 6 n)
-                    (* 2 y')
-                    x'))))
-
+(defn get-number-a [now pointer-index]
+  (let [digit (nth now (-> pointer-index (mod 16) (/ 4) Math/floor))
+        number (nth numbers digit)
+        x (-> pointer-index (mod 4) Math/floor)
+        y (-> pointer-index (/ 4) Math/floor (mod 3))]
+    (nth number (+ x (* y 4)))))

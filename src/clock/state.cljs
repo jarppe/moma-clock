@@ -1,10 +1,6 @@
 (ns clock.state
   (:require [clock.numbers :as n]))
 
-(defn initial-state []
-  (-> (repeat (* 8 3) [0 0])
-      (into [])))
-
 (defn get-time []
   (let [d (js/Date.)
         hours (.getHours d)
@@ -16,64 +12,150 @@
         m2 (- minutes (* m1 10))
         s1 (Math/floor (/ seconds 10.0))
         s2 (- seconds (* s1 10))]
-    [h1 h2 m1 m2 s1 s2]
-    #_[m1 m2 s1 s2]))
+    [h1 h2 m1 m2 s1 s2]))
 
-(defonce state (atom {:clocks (initial-state)
-                      :mode :trace-time}))
+(def stay identity)
 
-(defn show-time [{:keys [clocks] :as state}]
-  (let [now (get-time)]
-    (assoc state :clocks (->> (for [y (range 3)
-                                    x (range 8)]
-                                (n/pointers now x y))
-                              (into [])))))
+(defn run [{:keys [a v] :as pointer}]
+  (assoc pointer :a (+ a v)))
 
-(def T 0.1)
+(defn norm [a]
+  (if (> a n/PI)
+    (- a n/PIx2)
+    a))
 
-(defn zeroish? [v]
-  (-> v Math/abs (< T)))
+(defn cross-over? [t a a' v]
+  (let [comp (if (pos? v) <= >=)]
+    (comp (-> a (- t) (norm))
+          0
+          (-> a' (- t) (norm)))))
 
-(defn trace-a-dist [t a]
-  (let [d (- t a)]
-    (cond
-      (< (Math/abs d) T) 0.0
-      (neg? d) (+ d n/PIx2)
-      :else d)))
+(defn trace [{:keys [t a v] :as pointer}]
+  (let [a' (-> a (+ v) (mod n/PIx2))]
+    (if (cross-over? t a a' v)
+      (-> pointer
+          (assoc :mode stay)
+          (assoc :a t))
+      (-> pointer
+          (assoc :a a')))))
 
-(defn trace-time [{:keys [clocks pointer-modes] :as state}]
-  (let [now (get-time)]
+(def initial-pointer {:a 0.00
+                      :v 0.03
+                      :t 0.0
+                      :mode run})
 
-    (->> (for [y (range 3)
-               x (range 8)]
-           (let [index (+ (* 8 y) x)
-                 [t1 t2] (n/pointers now x y)
-                 [a1 a2] (nth clocks index)
-                 p1 (-> a1 (- 0.003) (mod n/PIx2))
-                 p2 (-> a2 (- 0.002) (mod n/PIx2))]
-             #_(when (and (zero? x) (zero? y))
-                 (js/console.log "t1" t1 "p1" p1 "d" (- t1 p1) "z?" (zeroish? (- t1 p1))))
-             [(if (zeroish? (- t1 p1)) t1 p1)
-              (if (zeroish? (- t2 p2)) t2 p2)]))
-         (into []))))
+(defn initial-pointers []
+  (-> (repeat (* 8 3 2) initial-pointer)
+      (into [])))
 
-(defn rotate-slowly [state]
-  (update state :clocks (fn [clocks]
-                          (->> clocks
-                               (map (fn [[a1 a2]]
-                                      [(-> a1 (+ 0.03) (mod n/PIx2))
-                                       (-> a2 (+ 0.02) (mod n/PIx2))]))
-                               (into [])))))
+(defonce state (atom {:pointers (initial-pointers)
+                      :now nil}))
 
-(def modes {:show-time show-time
-            :rotate-slowly rotate-slowly
-            :trace-time trace-time})
+(defn set-target-action
+  ([t v]
+   (fn [pointers _]
+     (->> pointers
+          (map (fn [pointer]
+                 (-> pointer
+                     (assoc :t t)
+                     (assoc :v v)
+                     (assoc :mode trace)))))))
+  ([t1 v1 t2 v2]
+   (fn [pointers _]
+     (->> pointers
+          (map-indexed (fn [n pointer]
+                         (-> pointer
+                             (assoc :t (if (odd? n) t1 t2))
+                             (assoc :v (if (odd? n) v1 v2))
+                             (assoc :mode trace))))))))
 
-(defn update-clocks [{:keys [mode] :as state} ts]
-  (let [move-fn trace-time #_(modes mode trace-time)]
-    (move-fn state)))
+(defn set-run-action
+  ([v]
+   (fn [pointers _]
+     (->> pointers
+          (map (fn [pointer]
+                 (-> pointer
+                     (assoc :mode run)
+                     (assoc :v v)))))))
+  ([v1 v2]
+   (fn [pointers _]
+     (->> pointers
+          (map-indexed (fn [n pointer]
+                         (-> pointer
+                             (assoc :mode run)
+                             (assoc :v (if (odd? n) v1 v2)))))))))
+
+(defn set-stop-action []
+  (fn [pointers _]
+    (->> pointers
+         (map (fn [pointer]
+                (assoc pointer :mode stay))))))
+
+(defn set-show-time [v]
+  (fn [pointers now]
+    (->> pointers
+         (map-indexed (fn [n pointer]
+                        (-> pointer
+                            (assoc :mode trace)
+                            (assoc :t (n/get-number-a now n))
+                            (assoc :v v)))))))
+
+(defn set-show-index []
+  (fn [pointers _]
+    (->> pointers
+         (map-indexed (fn [n pointer]
+                        (-> pointer
+                            (assoc :mode trace)
+                            (assoc :t (* n (/ n/PIx2 48)))
+                            (assoc :v 0.05)))))))
+
+(def actions {0 (set-target-action 0 -0.08 0 0.08)
+              2 (set-target-action n/PIp2 -0.04 (- n/PIp2) 0.04)
+              5 (set-run-action 0.04)
+              8 (set-show-time 0.05)
+              20 (set-target-action 0 -0.08 0 0.08)
+              22 (set-target-action n/PIp2 -0.04 (- n/PIp2) 0.04)
+              25 (set-run-action 0.04)
+              28 (set-show-time 0.05)
+              40 (set-target-action 0 -0.08 0 0.08)
+              42 (set-target-action n/PIp2 -0.04 (- n/PIp2) 0.04)
+              45 (set-run-action 0.04)
+              48 (set-show-time 0.05)})
+
+(defn default-action [pointers _]
+  pointers)
+
+(defn apply-pointers-action [pointers now]
+  (let [sec (+ (-> now (nth 4) (* 10))
+               (-> now (nth 5)))
+        action (actions sec default-action)]
+    (action pointers now)))
+
+(defn update-action [{:keys [now] :as state} new-now]
+  (if (= now new-now)
+    state
+    (-> state
+        (assoc :now new-now)
+        (update :pointers apply-pointers-action new-now))))
+
+(defn update-pointers [state]
+  (update state :pointers (fn [pointers]
+                            (->> pointers
+                                 (map (fn [{:keys [mode] :as pointer}]
+                                        (mode pointer)))
+                                 (into [])))))
+
+(defn update-state [state now]
+  (-> state
+      (update-action now)
+      (update-pointers)))
 
 (defn update-pointers-to [ts]
-  (-> state
-      (swap! update-clocks ts)
-      (:clocks)))
+  (let [prev (-> state
+                 deref
+                 :pointers)
+        next (-> state
+                 (swap! update-state (get-time))
+                 :pointers)]
+    (when-not (= prev next)
+      next)))
