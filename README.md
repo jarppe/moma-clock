@@ -1,10 +1,18 @@
 # moma-clock
 
-Like https://store.moma.org/home/clocks/clock-clock-24/119937-119937.html, but is cljs.
+Inspired by [reddit post](https://www.reddit.com/r/INEEEEDIT/comments/6z3455/a_clock_clock/)
+I got curious how to implement something like that in sw.
 
-More videos at http://www.humanssince1982.com
+More links to the actual thing:
+* https://store.moma.org/home/clocks/clock-clock-24/119937-119937.html
+* https://gfycat.com/MelodicLimitedGypsymoth
+* http://www.humanssince1982.com
+* https://clockclock.com
 
-Also, http://i.imgur.com/DENvcWo.gifv
+This is an attempt to implement something similar in [ClojureScript](https://clojurescript.org)
+
+By following the links to (MoMa store)[https://store.moma.org/home/clocks/clock-clock-24/119937-119937.html]
+I assumed that this is an art piece in MoMa, hence the name of the project.
 
 ## Setup
 
