@@ -1,5 +1,7 @@
 # moma-clock
 
+See the application live at [https://jarppe.github.io/moma-clock/](https://jarppe.github.io/moma-clock/)
+
 Inspired by [reddit post](https://www.reddit.com/r/INEEEEDIT/comments/6z3455/a_clock_clock/)
 I got curious how to implement something like that in sw.
 
