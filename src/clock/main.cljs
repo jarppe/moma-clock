@@ -1,6 +1,7 @@
 (ns clock.main
   (:require [goog.events :as e]
-            [clock.render :as r]))
+            [clock.render :as r]
+            [clock.fullscreen :as fs]))
 
 (defonce ctx (atom nil))
 
@@ -22,14 +23,11 @@
   (let [canvas (js/document.getElementById "app")
         width (.-clientWidth canvas)
         height (.-clientHeight canvas)]
-    (when-let [requestFullscreen (->> ["requestFullscreen"
-                                       "webkitRequestFullscreen"
-                                       "webkitRequestFullScreen"
-                                       "mozRequestFullScreen"
-                                       "msRequestFullscreen"]
-                                      (some (fn [fname]
-                                              (aget canvas fname))))]
-      (.call requestFullscreen canvas))
+    (fs/request-fullscreen)
+    (.addEventListener canvas "click" (fn [e]
+                                        (.preventDefault e)
+                                        (.stopPropagation e)
+                                        (fs/toggle-fullscreen)))
     (doto canvas
       (-> .-width (set! width))
       (-> .-height (set! height)))
