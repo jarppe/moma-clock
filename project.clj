@@ -40,4 +40,5 @@
                                    :output-dir "target/prod/resources/public/js/out"
                                    :closure-defines {goog.DEBUG false}}}]}
 
-  :auto-clean false)
+  :auto-clean false
+  :aliases {"dev" ["do" ["clean"] ["figwheel"]]})
