@@ -150,12 +150,12 @@
       (update-action now)
       (update-pointers)))
 
-(defn update-pointers-to [ts]
+(defn pointers [force?]
   (let [prev (-> state
                  deref
                  :pointers)
         next (-> state
                  (swap! update-state (get-time))
                  :pointers)]
-    (when-not (= prev next)
+    (when (or force? (not= prev next))
       next)))

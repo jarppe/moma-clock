@@ -27,22 +27,24 @@
       (-> .-width (set! width))
       (-> .-height (set! height)))
     (reset! ctx (-> (make-ctx width height)
-                    (assoc :ctx (.getContext canvas "2d"))))))
+                    (assoc :ctx (.getContext canvas "2d"))))
+    (r/render @ctx true)))
 
 (defn on-dblclick [e]
   (.preventDefault e)
   (.stopPropagation e)
-  (reset-ctx!)
-  (fs/toggle-fullscreen))
+  (fs/toggle-fullscreen)
+  (js/setTimeout reset-ctx! 1))
+
+(defn animation [_]
+  (r/render @ctx false)
+  (js/window.requestAnimationFrame animation))
 
 (defn init! []
   (when-not @ctx
-    (js/console.log "init")
     (.addEventListener js/window "resize" reset-ctx!)
     (.addEventListener js/document "dblclick" on-dblclick)
     (reset-ctx!)
-    ((fn animation [ts]
-       (r/render @ctx ts)
-       (js/window.requestAnimationFrame animation)) 0)))
+    (animation 0)))
 
 (init!)

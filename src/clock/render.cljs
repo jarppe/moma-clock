@@ -70,8 +70,8 @@
       (-> (.clearRect 0 0 200 20))
       (-> (.fillText time 10 10)))))
 
-(defn render [state ts]
-  (when-let [pointers (s/update-pointers-to ts)]
+(defn render [state force?]
+  (when-let [pointers (s/pointers force?)]
     (doto state
       (clear)
       (render-rims)
