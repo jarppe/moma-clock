@@ -23,21 +23,23 @@
   (let [canvas (js/document.getElementById "app")
         width (.-clientWidth canvas)
         height (.-clientHeight canvas)]
-    (fs/request-fullscreen)
-    (.addEventListener canvas "click" (fn [e]
-                                        (.preventDefault e)
-                                        (.stopPropagation e)
-                                        (fs/toggle-fullscreen)))
     (doto canvas
       (-> .-width (set! width))
       (-> .-height (set! height)))
     (reset! ctx (-> (make-ctx width height)
-                    (assoc :ctx (-> canvas (.getContext "2d")))))))
+                    (assoc :ctx (.getContext canvas "2d"))))))
+
+(defn on-dblclick [e]
+  (.preventDefault e)
+  (.stopPropagation e)
+  (reset-ctx!)
+  (fs/toggle-fullscreen))
 
 (defn init! []
   (when-not @ctx
     (js/console.log "init")
-    (js/window.addEventListener "resize" reset-ctx!)
+    (.addEventListener js/window "resize" reset-ctx!)
+    (.addEventListener js/document "dblclick" on-dblclick)
     (reset-ctx!)
     ((fn animation [ts]
        (r/render @ctx ts)
