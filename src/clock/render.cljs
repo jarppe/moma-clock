@@ -77,7 +77,7 @@
       (clear)
       (render-rims)
       (render-pointers pointers)))
-  (show-time state))
+  #_(show-time state))
 
 (comment
   (doseq [pointer-index (range (* 8 3 2))
