@@ -68,6 +68,7 @@
                   s)]
     (doto ctx
       (-> (.clearRect 0 0 200 20))
+      (-> .-fillStyle (set! "white"))
       (-> (.fillText time 10 10)))))
 
 (defn render [state force?]
@@ -76,7 +77,7 @@
       (clear)
       (render-rims)
       (render-pointers pointers)))
-  #_(show-time state))
+  (show-time state))
 
 (comment
   (doseq [pointer-index (range (* 8 3 2))

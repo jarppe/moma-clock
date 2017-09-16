@@ -6,13 +6,15 @@
         hours (.getHours d)
         minutes (.getMinutes d)
         seconds (.getSeconds d)
+        ms (.getMilliseconds d)
         h1 (Math/floor (/ hours 10.0))
         h2 (- hours (* h1 10))
         m1 (Math/floor (/ minutes 10.0))
         m2 (- minutes (* m1 10))
         s1 (Math/floor (/ seconds 10.0))
-        s2 (- seconds (* s1 10))]
-    [h1 h2 m1 m2 s1 s2]))
+        s2 (- seconds (* s1 10))
+        ds (Math/floor (/ ms 100.0))]
+    [h1 h2 m1 m2 s1 s2 ds]))
 
 (def stay identity)
 
@@ -85,6 +87,16 @@
                              (assoc :mode run)
                              (assoc :v (if (odd? n) v1 v2)))))))))
 
+(defn set-run-col-action [col v]
+  (fn [pointers _]
+    (->> pointers
+         (map-indexed (fn [n pointer]
+                        (if (-> n (mod 16) (/ 2) Math/floor (= col))
+                          (-> pointer
+                              (assoc :mode run)
+                              (assoc :v v))
+                          pointer))))))
+
 (defn set-stop-action []
   (fn [pointers _]
     (->> pointers
@@ -109,25 +121,53 @@
                             (assoc :t (* n (/ n/PIx2 48)))
                             (assoc :v 0.05)))))))
 
-(def actions {0 (set-target-action 0 -0.08 0 0.08)
-              2 (set-target-action n/PIp2 -0.04 (- n/PIp2) 0.04)
-              5 (set-run-action 0.04)
-              8 (set-show-time 0.05)
-              20 (set-target-action 0 -0.08 0 0.08)
-              22 (set-target-action n/PIp2 -0.04 (- n/PIp2) 0.04)
-              25 (set-run-action 0.04)
-              28 (set-show-time 0.05)
-              40 (set-target-action 0 -0.08 0 0.08)
-              42 (set-target-action n/PIp2 -0.04 (- n/PIp2) 0.04)
-              45 (set-run-action 0.04)
-              48 (set-show-time 0.05)})
+(def actions {0 (set-target-action n/PIp2 -0.04 (- n/PIp2) -0.04)
+              40 (set-run-col-action 7 0.04)
+              41 (set-run-col-action 6 0.04)
+              42 (set-run-col-action 5 0.04)
+              43 (set-run-col-action 4 0.04)
+              44 (set-run-col-action 3 0.04)
+              45 (set-run-col-action 2 0.04)
+              46 (set-run-col-action 1 0.04)
+              47 (set-run-col-action 0 0.04)
+              90 (set-target-action n/PIp2 0.04 (- n/PIp2) 0.04)
+              110 (set-run-col-action 0 -0.04)
+              111 (set-run-col-action 1 -0.04)
+              112 (set-run-col-action 2 -0.04)
+              113 (set-run-col-action 3 -0.04)
+              114 (set-run-col-action 4 -0.04)
+              115 (set-run-col-action 5 -0.04)
+              116 (set-run-col-action 6 -0.04)
+              117 (set-run-col-action 7 -0.04)
+              130 (set-show-time -0.04)
+
+              300 (set-target-action n/PIp2 -0.04 (- n/PIp2) -0.04)
+              340 (set-run-col-action 7 0.04)
+              341 (set-run-col-action 6 0.04)
+              342 (set-run-col-action 5 0.04)
+              343 (set-run-col-action 4 0.04)
+              344 (set-run-col-action 3 0.04)
+              345 (set-run-col-action 2 0.04)
+              346 (set-run-col-action 1 0.04)
+              347 (set-run-col-action 0 0.04)
+              390 (set-target-action n/PIp2 0.04 (- n/PIp2) 0.04)
+              410 (set-run-col-action 0 -0.04)
+              411 (set-run-col-action 1 -0.04)
+              412 (set-run-col-action 2 -0.04)
+              413 (set-run-col-action 3 -0.04)
+              414 (set-run-col-action 4 -0.04)
+              415 (set-run-col-action 5 -0.04)
+              416 (set-run-col-action 6 -0.04)
+              417 (set-run-col-action 7 -0.04)
+              430 (set-show-time -0.04)})
 
 (defn default-action [pointers _]
   pointers)
 
-(defn apply-pointers-action [pointers now]
-  (let [sec (+ (-> now (nth 4) (* 10))
-               (-> now (nth 5)))
+(defn apply-pointers-action [pointers [_ _ _ _ s1 s2 ds :as now]]
+  (let [sec (+ (* s1 100)
+               (* s2 10)
+               ds)
         action (actions sec default-action)]
     (action pointers now)))
 

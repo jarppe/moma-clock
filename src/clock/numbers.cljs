@@ -3,6 +3,7 @@
 (def ^:const PI Math/PI)
 (def ^:const PIx2 (* PI 2.0))
 (def ^:const PIp2 (/ PI 2.0))
+(def ^:const PIp4 (/ PI 4.0))
 
 (defn ->a [p]
   (* p (/ PIx2 8)))
